@@ -1,16 +1,31 @@
 {
-  "name": "dmang",
-  "version": "1.0.0",
+  "name": "docker-dev-tools",
+  "version": "0.0.1",
   "description": "",
   "main": "run.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/polyfill": "^7.2.5",
     "chalk": "^2.4.2",
     "inquirer": "^6.2.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^23.6.0",
+    "jest": "^23.6.0"
+  },
+  "bin": {
+    "dport": "./run.js",
+    "dpm": "./dpm.sh",
+    "dpx": "./dpx.sh",
+    "dssh": "./dssh.sh"
   }
 }

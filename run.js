@@ -1,5 +1,6 @@
 #!/usr/local/bin/node
+require("@babel/polyfill");
 
-const run = require('./src/index.js')
+const run = require('./dist/index.js')
 
 run()

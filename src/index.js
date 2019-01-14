@@ -17,17 +17,18 @@ const getRunningContainersOrThrowError = () => {
 }
 
 const getAdditionalInfoForContainers = (containerIds) => {
-  const commandToGetRunningContainerInfo = `docker inspect --format '{{.HostConfig.NetworkMode}} {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}} {{.State.Pid}} {{printf "%.13s" .ID}} {{.Name}}' ${containerIds.join(' ')}`
+  const commandToGetRunningContainerInfo = `docker inspect --format '{{.HostConfig.NetworkMode}} |{{range $p, $conf := .NetworkSettings.Ports}}{{$p}},{{(index $conf 0).HostPort}};{{end}}| {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}} {{.State.Pid}} {{printf "%.13s" .ID}} {{.Name}}' ${containerIds.join(' ')}`
   return cmd(commandToGetRunningContainerInfo).split('\n') // renamed from results
 }
 
 const getNetworkInfoForContainersByAdditionalContainerInfo = async (containersInfo) => {
   // async get network info for each container
   const promises = containersInfo.map(containerInfo => {
-    const [networkName, ip, pid, _id, name] = containerInfo.split(' ')
-    const promise = exec(`docker run --rm -i --privileged --pid=host dnst nsenter -t ${pid} -n netstat -pan`).then(b => b.stdout.toString().trim())
+    const [networkName, portInfo, ip, pid, _id, name] = containerInfo.split(' ')
+    const promise = exec(`docker run --rm -i --privileged --pid=host alpine nsenter -t ${pid} -n -- netstat -pan`).then(b => b.stdout.toString().trim())
     return promise.then(p => ({
       networkName,
+      portInfo: portInfo.slice(1,-1).split(';').filter(x => x).map(x => x.split(',')), //this could be || or formatted like |8000/tcp,8000;8080/tcp,8080| becomes [] or [[8000/tcp, 8000], [8080/tcp, 8080]]
       ip,
       name,
       p
@@ -37,11 +38,17 @@ const getNetworkInfoForContainersByAdditionalContainerInfo = async (containersIn
   return Promise.all(promises)
 }
 
-const questionAnswerObjectReducer = (acc, { networkName, ip, name, p }) => {
+const questionAnswerObjectReducer = (acc, { networkName, portInfo, ip, name, p }) => {
   // get ports from p
-  const ports = p.split('\n').map(l => /(?:tcp6?|udp) +\w +\w (?:0.0.0.0|::):(?<port>\d+)/gm.exec(l)).filter(x => x).map(x => x.groups.port)
 
-  ports.forEach(port => {
+  const ports = p.split('\n').map(l => {
+    const regex = new RegExp(/(?:tcp6?|udp) +\w +\w (?:0.0.0.0|::):(\d+)/)
+    return regex.exec(l)
+  }).filter(x => x).map(x => x[1])
+
+  ports
+    .filter(port =>!(portInfo.some(mapping => mapping[0].split('/')[0] === port)))
+    .forEach(port => {
     acc[`${networkName} ${ip} ${port}`] = {
       question: {
         name: `${name} ${port} (on network: ${networkName})`,
@@ -49,7 +56,7 @@ const questionAnswerObjectReducer = (acc, { networkName, ip, name, p }) => {
       },
       answer: {
         default: port,
-        cmd: (portToExpose) => `docker run -d --rm -p ${port}:${portToExpose} --network=${networkName} alpine/socat tcp-listen:${portToExpose},fork,reuseaddr tcp-connect:${ip}:${port}`
+        cmd: (portToExpose) => `docker run -d --rm -p ${portToExpose}:${port} --network=${networkName} alpine/socat tcp-listen:${port},fork,reuseaddr tcp-connect:${ip}:${port}`
       }
     }
   })
@@ -72,10 +79,10 @@ async function main () {
   // get ports from p
   const qa = containersNetworkInfo.reduce(questionAnswerObjectReducer, {})
 
-  inquirer.prompt([
-    {
-    }
-  ]).then({ whatToDo })
+  // inquirer.prompt([
+    // {
+    // }
+  // ]).then({ whatToDo })
   inquirer.prompt([
     {
       name: 'portOpen',
@@ -97,8 +104,12 @@ async function main () {
       ]).then(({ whichPort }) => {
         const commandToRun = qa[answers.portOpen].answer.cmd(whichPort)
         debug(commandToRun)
-        debug(cmd(commandToRun))
-        debug(`Successfly running ${cmd(commandToRun)}`)
+        try {
+          debug(`Successfly running ${cmd(commandToRun)}`)
+        } catch(err) {
+          debug(`Something went wrong when attempting to start up the proxy container. This was likely caused by another docker container already using the specified port (${whichPort}).`,0)
+          console.log(err.message)
+        }
       })
     }
   })
