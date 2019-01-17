@@ -9,6 +9,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/jkrup/docker-dev-tools.git"
+  },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
     "chalk": "^2.4.2",
