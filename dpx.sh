@@ -5,7 +5,7 @@ if [ -z "$NODE_VERSION" ]; then
 fi
 
 if [ -f "docker-compose.yml" ]; then
-  docker-compose run --rm app npx $@
+  docker-compose run --rm -it app npx $@
 else
   echo "No docker-compose.yml was found."
   if [ "$1" = "init" ]; then

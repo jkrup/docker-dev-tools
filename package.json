@@ -1,23 +1,42 @@
 {
-  "name": "docker-dev-tools",
-  "version": "0.0.1",
-  "description": "",
-  "main": "run.js",
-  "scripts": {
-    "test": "jest"
+  "_from": "docker-dev-tools",
+  "_id": "docker-dev-tools@0.0.1",
+  "_inBundle": false,
+  "_integrity": "sha512-F9bZpdohR5FISbqnlh3/8ojGlNHQeOtlDDmb3i1WaVFqZUnC3VunAmWaoBnQpcUiOgyMOoaCM/UefAte8TM8Og==",
+  "_location": "/docker-dev-tools",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "docker-dev-tools",
+    "name": "docker-dev-tools",
+    "escapedName": "docker-dev-tools",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
   },
-  "keywords": [],
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/docker-dev-tools/-/docker-dev-tools-0.0.1.tgz",
+  "_shasum": "d2ca4dcfe3e49a8218c97fe12db0f3bee33b97d5",
+  "_spec": "docker-dev-tools",
+  "_where": "/Users/jkrup/Projects/dmang",
   "author": "",
-  "license": "ISC",
-  "repository": {
-    "type" : "git",
-    "url" : "https://github.com/jkrup/docker-dev-tools.git"
+  "bin": {
+    "dport": "./run.js",
+    "dpm": "./dpm.sh",
+    "dpx": "./dpx.sh",
+    "dssh": "./dssh.sh"
   },
+  "bundleDependencies": false,
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
     "chalk": "^2.4.2",
     "inquirer": "^6.2.1"
   },
+  "deprecated": false,
+  "description": "## DPM ``` dpm ```",
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
@@ -26,10 +45,12 @@
     "babel-jest": "^23.6.0",
     "jest": "^23.6.0"
   },
-  "bin": {
-    "dport": "./run.js",
-    "dpm": "./dpm.sh",
-    "dpx": "./dpx.sh",
-    "dssh": "./dssh.sh"
-  }
+  "keywords": [],
+  "license": "ISC",
+  "main": "run.js",
+  "name": "docker-dev-tools",
+  "scripts": {
+    "test": "jest"
+  },
+  "version": "0.0.1"
 }

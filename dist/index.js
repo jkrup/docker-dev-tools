@@ -71,7 +71,7 @@ function () {
                   _id = _containerInfo$split2[4],
                   name = _containerInfo$split2[5];
 
-              var promise = exec(`docker run --rm -i --privileged --pid=host alpine nsenter -t ${pid} -n -- netstat -pan`).then(function (b) {
+              var promise = exec(`docker run --rm -i --privileged --pid=host alpine:latest nsenter -t ${pid} -n -- netstat -pan`).then(function (b) {
                 return b.stdout.toString().trim();
               });
               return promise.then(function (p) {
